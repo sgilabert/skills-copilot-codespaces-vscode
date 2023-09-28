@@ -1,43 +1,15 @@
-// Create a web server that can respond to requests for comments
-// from a database
+// Create a web server that can respond to requests for /comments.json
+// with a random comment from the array comments. 
 
-// Import the express library
-const express = require('express');
+var http = require('http');
+var comments = require('./comments.js');
 
-// Create an instance of express
-const app = express();
-
-// Import the mysql library
-const mysql = require('mysql');
-
-// Import the database credentials
-const config = require('./config.json');
-
-// Create a MySQL connection object
-const connection = mysql.createConnection(config);
-
-// Connect to the database
-connection.connect();
-
-// Use the 'comments' database
-connection.query('USE comments');
-
-// Handle requests for comments
-app.get('/comments', function(request, response) {
-    // Get the comments from the database
-    connection.query('SELECT * FROM comments', function(error, rows, fields) {
-        // If there was an error, send a 500 error code
-        if (error) {
-            console.log(error);
-            response.status(500).send('Internal Server Error');
-        }
-        // Send the rows as a JSON object
-        else {
-            response.send(rows);
-        }
-    });
+var server = http.createServer(function(req, res) {
+  var randomComment = comments[Math.floor(Math.random() * comments.length)];
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end(randomComment);
 });
 
-// Start the server
-app.listen(3000);
-console.log('Server is ready.');
+server.listen(3000, function() {
+  console.log('Server running on port 3000');
+});
